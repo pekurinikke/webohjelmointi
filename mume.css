@@ -1,0 +1,42 @@
+.side {
+    padding: 40px;
+    text-align: center;
+    background-color: beige;
+    color: grey;
+    
+}
+
+.main {
+    text-align: center;
+    background-color: beige;
+    color: black;
+    text-size-adjust: auto;
+}
+
+.navbar {
+    padding: 25px;
+    background-color: pink;
+    color: white;
+    text-align: center;
+}
+
+.container {
+    display: flex; /* Use flexbox for side-by-side layout */
+    justify-content: space-between; /* Adjust spacing between elements */
+    align-items: center; /* Vertically center elements */
+  }
+  
+  img {
+    max-width: 200px; /* Set a maximum width for the image */
+    height: auto; /* Maintain aspect ratio */
+  }
+  .mops {
+    background-color: lightblue;
+    color: beige;
+    padding: 80px;
+    
+  }
+
+  .body {
+    background-color: beige;
+  }

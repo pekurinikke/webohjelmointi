@@ -5,19 +5,17 @@
 .navbar {
   overflow: hidden;
   background-color: burlywood;
+  display: flex; 
+  justify-content: space-between; 
 }
 
 .navbar a {
-  float: left;
+  flex: 1; 
   display: block;
   color: beige;
   text-align: center;
-  padding: 10px 15px; /* Adjust padding for smaller screens */
+  padding: 10px 15px;
   text-decoration: dotted;
-}
-
-.navbar a.right {
-  float: right;
 }
 
 .navbar a:hover {
@@ -30,14 +28,14 @@
 }
 
 .header {
-  padding: 40px; /* Adjust padding for smaller screens */
+  padding: 40px; 
   text-align: center;
   background: lightblue;
   color: white;
 }
 
 .header h1 {
-  font-size: 28px; /* Adjust font size for smaller screens */
+  font-size: 28px; 
   box-sizing: border-box;
 }
 
@@ -59,15 +57,15 @@ th {
   background-color: burlywood;
 }
 
-/* Media query for mobile devices */
+
 @media screen and (max-width: 767px) {
   .navbar a {
     padding: 8px 12px;
   }
   .center {
-    margin-top: 20px; /* Add some margin for better spacing */
+    margin-top: 20px; 
   }
   th, td {
-    padding: 6px; /* Reduce padding for smaller screens */
+    padding: 6px; 
   }
 }

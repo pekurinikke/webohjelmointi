@@ -4,7 +4,7 @@ body {
 }
 
 .side {
-  padding: 20px; /* Adjust padding for smaller screens */
+  padding: 20px; 
   text-align: center;
   background-color: lightblue;
   color: white;
@@ -18,27 +18,25 @@ body {
 }
 
 .navbar {
-  overflow: hidden;
-  background-color: burlywood;
-}
-
-.navbar a {
-  float: left;
-  display: block;
-  color: beige;
-  text-align: center;
-  padding: 10px 15px; /* Adjust padding for smaller screens */
-  text-decoration: dotted;
-}
-
-.navbar a.right {
-  float: right;
-}
-
-.navbar a:hover {
-  background-color: rgb(168, 64, 64);
-  color: beige;
-}
+    overflow: hidden;
+    background-color: burlywood;
+    display: flex; 
+    justify-content: space-between; 
+  }
+  
+  .navbar a {
+    flex: 1; 
+    display: block;
+    color: beige;
+    text-align: center;
+    padding: 10px 15px;
+    text-decoration: dotted;
+  }
+  
+  .navbar a:hover {
+    background-color: rgb(168, 64, 64);
+    color: beige;
+  }
 
 .container {
   display: flex;
@@ -46,21 +44,21 @@ body {
 }
 
 img {
-  max-width: 100%; /* Set maximum width to 100% for responsive images */
+  max-width: 100%; 
   height: auto;
 }
 
 .mops {
   background-color: lightblue;
   color: beige;
-  padding: 40px; /* Adjust padding for smaller screens */
+  padding: 40px; 
 }
 
 .container p {
   background-color: lightblue;
-  padding: 40px; /* Adjust padding for smaller screens */
+  padding: 40px; 
   color: white;
-  font-size: 18px; /* Set a base font size */
+  font-size: 18px; 
 }
 
 .header {
@@ -68,16 +66,16 @@ img {
   background-color: lightblue;
   text-size-adjust: auto;
   color: white;
-  font-size: 24px; /* Set a base font size */
+  font-size: 24px; 
 }
 
-/* Media query for mobile devices */
+
 @media screen and (max-width: 767px) {
   .navbar a {
     padding: 8px 12px;
   }
   .container {
-    flex-direction: column; /* Stack elements vertically on small screens */
+    flex-direction: column; 
   }
   .mops {
     padding: 20px;

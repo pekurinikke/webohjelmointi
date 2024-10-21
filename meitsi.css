@@ -1,0 +1,51 @@
+.header {
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .navbar {
+    overflow: hidden;
+    background-color: burlywood;
+    display: flex; 
+    justify-content: space-between; 
+  }
+  
+  .navbar a {
+    flex: 1; 
+    display: block;
+    color: beige;
+    text-align: center;
+    padding: 10px 15px;
+    text-decoration: dotted;
+  }
+  
+  .navbar a:hover {
+    background-color: rgb(168, 64, 64);
+    color: beige;
+  }
+  
+  .tietopankki {
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .container {
+    text-align: center;
+  }
+  
+  img {
+    max-width: 100%; 
+    height: auto;
+  }
+  
+  
+  @media screen and (max-width: 768px) {
+    .navbar a {
+      float: none;
+      width: 100%;
+      text-align: left;
+    }
+    .container {
+      padding: 1rem;
+    }
+  }

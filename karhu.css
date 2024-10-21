@@ -1,15 +1,73 @@
 .left {
-    margin-left: auto;
-    margin-right: auto;
-  }
+  margin: 0 auto;
+}
 
-  .navbar {
-    padding: 25px;
-    background-color: pink;
-    color: white;
-    text-align: center;
+.navbar {
+  overflow: hidden;
+  background-color: burlywood;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  color: beige;
+  text-align: center;
+  padding: 10px 15px; /* Adjust padding for smaller screens */
+  text-decoration: dotted;
+}
+
+.navbar a.right {
+  float: right;
+}
+
+.navbar a:hover {
+  background-color: rgb(168, 64, 64);
+  color: beige;
 }
 
 .body {
-    color: burlywood;
+  color: burlywood;
+}
+
+.header {
+  padding: 40px; /* Adjust padding for smaller screens */
+  text-align: center;
+  background: lightblue;
+  color: white;
+}
+
+.header h1 {
+  font-size: 28px; /* Adjust font size for smaller screens */
+  box-sizing: border-box;
+}
+
+.center {
+  margin: 0 auto;
+  border: 2px solid lightblue;
+  background-color: lightblue;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid #543821;
+  padding: 8px;
+  text-align: center;
+  color: white;
+}
+
+th {
+  background-color: burlywood;
+}
+
+/* Media query for mobile devices */
+@media screen and (max-width: 767px) {
+  .navbar a {
+    padding: 8px 12px;
+  }
+  .center {
+    margin-top: 20px; /* Add some margin for better spacing */
+  }
+  th, td {
+    padding: 6px; /* Reduce padding for smaller screens */
+  }
 }

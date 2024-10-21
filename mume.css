@@ -1,42 +1,91 @@
+body {
+  background-color: lightblue;
+  color: lightblue;
+}
+
 .side {
-    padding: 40px;
-    text-align: center;
-    background-color: beige;
-    color: grey;
-    
+  padding: 20px; /* Adjust padding for smaller screens */
+  text-align: center;
+  background-color: lightblue;
+  color: white;
 }
 
 .main {
-    text-align: center;
-    background-color: beige;
-    color: black;
-    text-size-adjust: auto;
+  text-align: center;
+  background-color: lightblue;
+  color: white;
+  text-size-adjust: auto;
 }
 
 .navbar {
-    padding: 25px;
-    background-color: pink;
-    color: white;
-    text-align: center;
+  overflow: hidden;
+  background-color: burlywood;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  color: beige;
+  text-align: center;
+  padding: 10px 15px; /* Adjust padding for smaller screens */
+  text-decoration: dotted;
+}
+
+.navbar a.right {
+  float: right;
+}
+
+.navbar a:hover {
+  background-color: rgb(168, 64, 64);
+  color: beige;
 }
 
 .container {
-    display: flex; /* Use flexbox for side-by-side layout */
-    justify-content: space-between; /* Adjust spacing between elements */
-    align-items: center; /* Vertically center elements */
+  display: flex;
+  align-items: center;
+}
+
+img {
+  max-width: 100%; /* Set maximum width to 100% for responsive images */
+  height: auto;
+}
+
+.mops {
+  background-color: lightblue;
+  color: beige;
+  padding: 40px; /* Adjust padding for smaller screens */
+}
+
+.container p {
+  background-color: lightblue;
+  padding: 40px; /* Adjust padding for smaller screens */
+  color: white;
+  font-size: 18px; /* Set a base font size */
+}
+
+.header {
+  text-align: center;
+  background-color: lightblue;
+  text-size-adjust: auto;
+  color: white;
+  font-size: 24px; /* Set a base font size */
+}
+
+/* Media query for mobile devices */
+@media screen and (max-width: 767px) {
+  .navbar a {
+    padding: 8px 12px;
   }
-  
-  img {
-    max-width: 200px; /* Set a maximum width for the image */
-    height: auto; /* Maintain aspect ratio */
+  .container {
+    flex-direction: column; /* Stack elements vertically on small screens */
   }
   .mops {
-    background-color: lightblue;
-    color: beige;
-    padding: 80px;
-    
+    padding: 20px;
   }
-
-  .body {
-    background-color: beige;
+  .container p {
+    font-size: 16px;
   }
+  .header {
+    font-size: 20px;
+  }
+}

@@ -64,7 +64,7 @@
 
   iframe {
     display: block;
-    margin: 0 auto; /* Centers the iframe horizontally */
+    margin: 0 auto; 
   }
 
   .header {

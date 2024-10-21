@@ -1,0 +1,80 @@
+.calculator {
+    width: 300px;
+    padding: 20px;
+    border: 2px solid #88634b;
+    border-radius: 10px;
+    background-color: #e6cc9f;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 50px; 
+  }
+  
+  .calculator input[type="number"],
+  .calculator select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .calculator button {
+    padding: 10px 20px;
+    background-color: #88634b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .calculator button:hover {
+    background-color: #99735b;
+  }
+  
+  .calculator input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: right;
+  }
+
+  .navbar {
+    overflow: hidden;
+    background-color: burlywood;
+    display: flex; 
+    justify-content: space-between; 
+  }
+  
+  .navbar a {
+    flex: 1; 
+    display: block;
+    color: beige;
+    text-align: center;
+    padding: 10px 15px;
+    text-decoration: dotted;
+  }
+  
+  .navbar a:hover {
+    background-color: rgb(168, 64, 64);
+    color: beige;
+  }
+
+  iframe {
+    display: block;
+    margin: 0 auto; /* Centers the iframe horizontally */
+  }
+
+  .header {
+    padding: 40px; 
+    text-align: center;
+    background: lightblue;
+    color: white;
+  }
+  
+  .header h1 {
+    font-size: 28px; 
+    box-sizing: border-box;
+  }

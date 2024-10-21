@@ -51,10 +51,27 @@ body {
     </tr>
   </table>
 
-</body>
+  <button onclick="generateRandomNumber()">Generate Random Number</button>   
+
+  <p id="tulos"></p>
+
+
+
+
+<script>
+  function generateRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function displayRandomNumber() {
+    const randomNumber = generateRandomNumber(1, 100);
+    document.getElementById("tulos").textContent = randomNumber;
+  }
+</script>
 
 <div class="container">
   <img src="https://images.fyndiq.se/images/f_auto/t_600x600/prod/7daacf10428340b5/cb0f1e504c51/harmaa-koala-naamio-vombat-hauska-tanssijuhla-laiskiainen-karhu-cover-elainten-leikki-rekvisiitta-vedettava-karhun-naamio" alt="karhu">
   <p>Tässä karhu</p>
 </div>
-
+</body>
+</html>

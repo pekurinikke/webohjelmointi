@@ -1,4 +1,3 @@
-// events-fetch.js
 const DAYS_WINDOW = 21;
 let allEvents = [];
 let currentStartDate = getTodayAtMidnight();
@@ -54,11 +53,11 @@ async function loadEvents() {
 
   const data = await response.json();
 
-  if (!data.items || !Array.isArray(data.items)) {
-    throw new Error("API ei palauttanut items-taulukkoa");
+  if (!data.model || !Array.isArray(data.model)) {
+    throw new Error("API ei palauttanut odotettua dataa");
   }
 
-  return data.items.map(event => ({
+  return data.model.map(event => ({
     title: event.name,
     dateObj: new Date(event.startDate),
     description: event.description || "",

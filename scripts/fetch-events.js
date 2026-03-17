@@ -1,116 +1,58 @@
-const fs = require("fs");
-const path = require("path");
+// events-fetch.js
+const eventsContainer = document.getElementById("eventsContainer");
+const eventCount = document.getElementById("eventCount");
 
-function addDays(date, days) {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
+// Funktio tapahtumien renderöintiin
+function renderEvents(events) {
+  eventsContainer.innerHTML = "";
+  if (!events || events.length === 0) {
+    eventsContainer.innerHTML = "<p>Ei tapahtumia löydetty.</p>";
+    return;
+  }
+
+  events.forEach(event => {
+    const eventDiv = document.createElement("div");
+    eventDiv.className = "event-card";
+
+    const title = document.createElement("h3");
+    title.textContent = event.name;
+    eventDiv.appendChild(title);
+
+    const date = document.createElement("p");
+    const eventDate = new Date(event.startDate).toLocaleString("fi-FI");
+    date.textContent = `Aika: ${eventDate}`;
+    eventDiv.appendChild(date);
+
+    if (event.location && event.location.name) {
+      const location = document.createElement("p");
+      location.textContent = `Paikka: ${event.location.name}`;
+      eventDiv.appendChild(location);
+    }
+
+    if (event.price !== undefined && event.price !== null) {
+      const price = document.createElement("p");
+      price.textContent = `Hinta: ${event.price} €`;
+      eventDiv.appendChild(price);
+    }
+
+    eventsContainer.appendChild(eventDiv);
+  });
+
+  if (eventCount) eventCount.textContent = `Löytyi ${events.length} tapahtumaa.`;
 }
 
-function toIsoWithLocalOffset(date) {
-  const tzOffset = -date.getTimezoneOffset();
-  const sign = tzOffset >= 0 ? "+" : "-";
-  const hours = String(Math.floor(Math.abs(tzOffset) / 60)).padStart(2, "0");
-  const minutes = String(Math.abs(tzOffset) % 60).padStart(2, "0");
-
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const hh = String(date.getHours()).padStart(2, "0");
-  const min = String(date.getMinutes()).padStart(2, "0");
-  const ss = String(date.getSeconds()).padStart(2, "0");
-
-  return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}${sign}${hours}:${minutes}`;
-}
-
-function createEvent(id, title, daysFromNow, hour, minute, popularity, description, organizer, url) {
-  const now = new Date();
-  const date = addDays(now, daysFromNow);
-  date.setHours(hour, minute, 0, 0);
-
-  return {
-    id,
-    title,
-    date: toIsoWithLocalOffset(date),
-    location: "Hervanta, Tampere",
-    popularity,
-    description,
-    organizer,
-    sourceUrl: url
-  };
-}
-
-const events = [
-  createEvent(
-    "event-auto-001",
-    "Haalaribileet @ Hervanta",
-    2,
-    19,
-    0,
-    88,
-    "Rento opiskelijabileilta haalarikansalle. Musiikkia, teemajuomia ja paljon porukkaa.",
-    "TUTTI",
-    "https://example.com/haalaribileet"
-  ),
-  createEvent(
-    "event-auto-002",
-    "Sitsit: Kevään avaussitsit",
-    6,
-    18,
-    0,
-    76,
-    "Perinteiset opiskelijasitsit teemalla kevään avaus. OPM ja laulut valmiina.",
-    "Ainejärjestö X",
-    "https://example.com/sitsit"
-  ),
-  createEvent(
-    "event-auto-003",
-    "Saunailta ja lautapelit",
-    11,
-    17,
-    30,
-    52,
-    "Rentoa hengailua, saunomista ja lautapelejä opiskelijoille.",
-    "Kerho Y",
-    "https://example.com/saunailta"
-  ),
-  createEvent(
-    "event-auto-004",
-    "Afterwork & networking",
-    16,
-    16,
-    0,
-    43,
-    "Rennompi verkostoitumisilta opiskelijoille ja alumneille.",
-    "TREY / yhteistyöjärjestäjät",
-    "https://example.com/networking"
-  ),
-  createEvent(
-    "event-auto-005",
-    "Appro-etkot Hervannassa",
-    20,
-    18,
-    30,
-    91,
-    "Etkot ennen isompaa approkierrosta. Teemajuomat ja haalarit suositeltuja.",
-    "Tapahtumatiimi Z",
-    "https://example.com/appro"
-  ),
-  createEvent(
-    "event-auto-006",
-    "Lautapeli-ilta kiltahuoneella",
-    24,
-    17,
-    0,
-    49,
-    "Matalan kynnyksen ilta uusille ja vanhoille opiskelijoille.",
-    "Kilta Q",
-    "https://example.com/lautapeli-ilta"
-  )
-];
-
-const outputPath = path.join(__dirname, "..", "data", "events.json");
-
-fs.writeFileSync(outputPath, JSON.stringify(events, null, 2), "utf8");
-
-console.log(`Kirjoitettu ${events.length} tapahtumaa tiedostoon: ${outputPath}`);
+// Hae live-tapahtumat Kide.app API:sta
+fetch("https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=10")
+  .then(res => res.json())
+  .then(data => {
+    if (data.items && data.items.length > 0) {
+      renderEvents(data.items);
+      document.getElementById("rangeTitle").textContent = "Tapahtumat tällä hetkellä:";
+    } else {
+      eventsContainer.innerHTML = "<p>Ei tapahtumia löydetty.</p>";
+    }
+  })
+  .catch(err => {
+    console.error("Tapahtumia ei voitu ladata:", err);
+    eventsContainer.innerHTML = "<p>Tapahtumia ei voitu ladata.</p>";
+  });

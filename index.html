@@ -5,6 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hervannan opiskelijatapahtumat</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Perustyylit tapahtumille */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .event-card {
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .event-card h3 {
+      margin-top: 0;
+    }
+
+    .event-card p {
+      margin: 0.3rem 0;
+      font-size: 0.95rem;
+    }
+
+    .event-card a {
+      color: #1a73e8;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .event-card a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <header class="page-header">
@@ -38,6 +73,6 @@
     </section>
   </main>
 
-  <script src="script.js"></script>
+  <script src="scripts/events-fetch.js"></script>
 </body>
 </html>

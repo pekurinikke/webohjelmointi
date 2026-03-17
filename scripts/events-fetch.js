@@ -46,10 +46,8 @@ async function init() {
 
 async function loadEvents() {
   const url = "https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=50";
-
   const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
   const data = await response.json();
 
   if (!data.model || !Array.isArray(data.model)) {
@@ -58,13 +56,13 @@ async function loadEvents() {
 
   return data.model.map(event => ({
     title: event.name,
-    dateObj: new Date(event.startDate),
-    description: event.description || "",
-    location: event.location?.name || "Tuntematon",
-    organizer: "",
+    dateObj: new Date(event.dateActualFrom),
+    description: `Hinta: ${event.minPrice?.eur || "N/A"}–${event.maxPrice?.eur || "N/A"} € | Saatavuus: ${event.availability}`,
+    location: event.place || "Tuntematon",
+    organizer: event.companyName || "",
     sourceUrl: "",
-    popularity: 0
-  })).sort((a, b) => a.dateObj - b.dateObj);
+    popularity: event.favoritedTimes || 0
+  })).sort((a,b) => a.dateObj - b.dateObj);
 }
 
 function render() {
@@ -101,7 +99,6 @@ function renderEvents(events) {
   events.forEach(event => {
     const card = document.createElement("article");
     card.className = "event-card";
-
     const dateText = formatDateTimeFi(event.dateObj);
 
     card.innerHTML = `
@@ -109,8 +106,9 @@ function renderEvents(events) {
       <div class="event-meta">
         <div><strong>Päivämäärä:</strong> ${dateText}</div>
         <div><strong>Sijainti:</strong> ${escapeHtml(event.location)}</div>
+        <div><strong>Järjestäjä:</strong> ${escapeHtml(event.organizer)}</div>
       </div>
-      <p class="event-description">${escapeHtml(event.description || "Ei kuvausta saatavilla.")}</p>
+      <p class="event-description">${escapeHtml(event.description)}</p>
     `;
 
     eventsContainer.appendChild(card);
@@ -120,11 +118,7 @@ function renderEvents(events) {
 function showError(message) {
   rangeTitle.textContent = "Virhe";
   eventCount.textContent = "";
-  eventsContainer.innerHTML = `
-    <div class="empty-state">
-      <h3>${message}</h3>
-    </div>
-  `;
+  eventsContainer.innerHTML = `<div class="empty-state"><h3>${message}</h3></div>`;
 }
 
 function getTodayAtMidnight() {

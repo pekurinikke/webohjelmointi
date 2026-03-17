@@ -10,7 +10,6 @@ const startDateInput = document.getElementById("startDate");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
-// Aloitetaan
 init();
 
 async function init() {
@@ -18,9 +17,13 @@ async function init() {
 
   try {
     allEvents = await loadEvents();
-    render();
+    if (allEvents.length === 0) {
+      showError("API ei palauttanut tapahtumia tällä hetkellä.");
+    } else {
+      render();
+    }
   } catch (error) {
-    console.error("Virhe tapahtumien latauksessa:", error);
+    console.error("Tapahtumien latauksessa virhe:", error);
     showError("Tapahtumien lataaminen epäonnistui.");
   }
 
@@ -42,30 +45,31 @@ async function init() {
   });
 }
 
-// Hae tapahtumat Kide.app API:sta
+// Hae live-tapahtumat Kide.app API:sta
 async function loadEvents() {
-  const response = await fetch(
-    "https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=50"
-  );
+  const url = "https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=50";
 
+  const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
   const data = await response.json();
 
-  return data.items
-    .map(event => ({
-      title: event.name,
-      dateObj: new Date(event.startDate),
-      description: event.description || "",
-      location: event.location?.name || "Tuntematon",
-      organizer: "", // API ei anna järjestäjää
-      sourceUrl: "", // API ei anna URLia
-      popularity: 0
-    }))
-    .sort((a, b) => a.dateObj - b.dateObj);
+  if (!data.items || !Array.isArray(data.items)) {
+    throw new Error("API ei palauttanut items-taulukkoa");
+  }
+
+  return data.items.map(event => ({
+    title: event.name,
+    dateObj: new Date(event.startDate),
+    description: event.description || "",
+    location: event.location?.name || "Tuntematon",
+    organizer: "",
+    sourceUrl: "",
+    popularity: 0
+  })).sort((a, b) => a.dateObj - b.dateObj);
 }
 
-// Renderöi tapahtumat valitulle aikavälille
+// Renderöinti
 function render() {
   const filteredEvents = filterEvents(allEvents, currentStartDate, DAYS_WINDOW);
   updateRangeInfo(filteredEvents);
@@ -116,7 +120,6 @@ function renderEvents(events) {
   });
 }
 
-// Apufunktiot
 function showError(message) {
   rangeTitle.textContent = "Virhe";
   eventCount.textContent = "";
@@ -127,6 +130,7 @@ function showError(message) {
   `;
 }
 
+// Apufunktiot
 function getTodayAtMidnight() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -156,8 +160,12 @@ function formatDateFi(date) {
 
 function formatDateTimeFi(date) {
   return date.toLocaleString("fi-FI", {
-    weekday: "short", day: "numeric", month: "numeric", year: "numeric",
-    hour: "2-digit", minute: "2-digit"
+    weekday: "short",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
   });
 }
 

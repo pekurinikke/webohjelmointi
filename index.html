@@ -1,47 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fi">
 <head>
-<link rel="stylesheet" type="text/css" href="miau.css">
-<title>Page Title</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {
-  background-color: lightblue;
-  color: #333;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hervannan opiskelijatapahtumat</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <header class="page-header">
+    <div class="container">
+      <h1>Hervannan opiskelijatapahtumat</h1>
+      <p class="subtitle">
+        Selaa Hervannan alueen opiskelijatapahtumia 3 viikon jaksoissa.
+      </p>
+    </div>
+  </header>
 
+  <main class="container">
+    <section class="controls">
+      <button id="prevBtn" class="nav-btn">← Edelliset 3 viikkoa</button>
+
+      <div class="date-controls">
+        <label for="startDate">Aikaväli alkaa:</label>
+        <input type="date" id="startDate" />
+      </div>
+
+      <button id="nextBtn" class="nav-btn">Seuraavat 3 viikkoa →</button>
+    </section>
+
+    <section class="range-info">
+      <h2 id="rangeTitle">Ladataan tapahtumia...</h2>
+      <p id="eventCount"></p>
+    </section>
+
+    <section id="eventsContainer" class="events-grid">
+      <!-- Eventit renderöidään tänne -->
+    </section>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
-<div class="header">
-    <h1>Meikän Verkkosivu</h1>
-    <p>Meikämangustin väkertämä sivu</p>
-  </div>
-
-<div class="navbar">
-    <a href="karhu.html">TOP 5 karhua</a>
-    <a href="mume.html" >Mummo</a> 
-    <a href="meitsi.html" >Tietoa minusta</a>
-    <a href="hauskaa.html" >Hauskaa</a>
-</div>
-
-<div class="musa">
-  <h1>Rauhallista musiikkia</h1>
-</div>
-
-<div class="container">
-  <img src="https://cdn.pixabay.com/photo/2017/04/18/23/35/frog-2240764_1280.jpg" alt="sammakko">
-  
-  <body>
-    <iframe src="https://open.spotify.com/embed/playlist/3ShAm5ojliy9xxVdbtE6Id?si=43475b7a65a24d32" width="800" height="600" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-  </body>
-  </html>
-
-</div>
-
-    
-

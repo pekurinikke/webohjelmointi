@@ -44,7 +44,6 @@ async function init() {
   });
 }
 
-// Hae live-tapahtumat Kide.app API:sta
 async function loadEvents() {
   const url = "https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=50";
 
@@ -68,7 +67,6 @@ async function loadEvents() {
   })).sort((a, b) => a.dateObj - b.dateObj);
 }
 
-// Renderöinti
 function render() {
   const filteredEvents = filterEvents(allEvents, currentStartDate, DAYS_WINDOW);
   updateRangeInfo(filteredEvents);
@@ -129,7 +127,6 @@ function showError(message) {
   `;
 }
 
-// Apufunktiot
 function getTodayAtMidnight() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());

@@ -1,8 +1,8 @@
 [
   {
-    "id": "event-001",
+    "id": "event-auto-001",
     "title": "Haalaribileet @ Hervanta",
-    "date": "2026-03-20T19:00:00+02:00",
+    "date": "2026-03-19T19:00:00+00:00",
     "location": "Hervanta, Tampere",
     "popularity": 88,
     "description": "Rento opiskelijabileilta haalarikansalle. Musiikkia, teemajuomia ja paljon porukkaa.",
@@ -10,9 +10,9 @@
     "sourceUrl": "https://example.com/haalaribileet"
   },
   {
-    "id": "event-002",
+    "id": "event-auto-002",
     "title": "Sitsit: Kevään avaussitsit",
-    "date": "2026-03-24T18:00:00+02:00",
+    "date": "2026-03-23T18:00:00+00:00",
     "location": "Hervanta, Tampere",
     "popularity": 76,
     "description": "Perinteiset opiskelijasitsit teemalla kevään avaus. OPM ja laulut valmiina.",
@@ -20,9 +20,9 @@
     "sourceUrl": "https://example.com/sitsit"
   },
   {
-    "id": "event-003",
+    "id": "event-auto-003",
     "title": "Saunailta ja lautapelit",
-    "date": "2026-03-29T17:30:00+02:00",
+    "date": "2026-03-28T17:30:00+00:00",
     "location": "Hervanta, Tampere",
     "popularity": 52,
     "description": "Rentoa hengailua, saunomista ja lautapelejä opiskelijoille.",
@@ -30,9 +30,9 @@
     "sourceUrl": "https://example.com/saunailta"
   },
   {
-    "id": "event-004",
+    "id": "event-auto-004",
     "title": "Afterwork & networking",
-    "date": "2026-04-03T16:00:00+02:00",
+    "date": "2026-04-02T16:00:00+00:00",
     "location": "Hervanta, Tampere",
     "popularity": 43,
     "description": "Rennompi verkostoitumisilta opiskelijoille ja alumneille.",
@@ -40,13 +40,23 @@
     "sourceUrl": "https://example.com/networking"
   },
   {
-    "id": "event-005",
+    "id": "event-auto-005",
     "title": "Appro-etkot Hervannassa",
-    "date": "2026-04-08T18:30:00+02:00",
+    "date": "2026-04-06T18:30:00+00:00",
     "location": "Hervanta, Tampere",
     "popularity": 91,
     "description": "Etkot ennen isompaa approkierrosta. Teemajuomat ja haalarit suositeltuja.",
     "organizer": "Tapahtumatiimi Z",
     "sourceUrl": "https://example.com/appro"
+  },
+  {
+    "id": "event-auto-006",
+    "title": "Lautapeli-ilta kiltahuoneella",
+    "date": "2026-04-10T17:00:00+00:00",
+    "location": "Hervanta, Tampere",
+    "popularity": 49,
+    "description": "Matalan kynnyksen ilta uusille ja vanhoille opiskelijoille.",
+    "organizer": "Kilta Q",
+    "sourceUrl": "https://example.com/lautapeli-ilta"
   }
 ]

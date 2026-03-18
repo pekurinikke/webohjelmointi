@@ -57,12 +57,13 @@ async function loadEvents() {
   return data.model.map(event => ({
     title: event.name,
     dateObj: new Date(event.dateActualFrom),
-    description: `Hinta: ${event.minPrice?.eur || "N/A"}–${event.maxPrice?.eur || "N/A"} € | Saatavuus: ${event.availability}`,
+    description: `Hinta: alk. ${event.minPrice?.eur || "N/A"}–${event.maxPrice?.eur || "N/A"} €`,
     location: event.place || "Tuntematon",
     organizer: event.companyName || "",
-    sourceUrl: "",
-    popularity: event.favoritedTimes || 0
-  })).sort((a,b) => a.dateObj - b.dateObj);
+    sourceUrl: `https://kide.app/products/${event.id}`,
+    popularity: event.favoritedTimes || 0,
+    mediaFilename: event.mediaFilename || ""
+  })).sort((a, b) => a.dateObj - b.dateObj);
 }
 
 function render() {
@@ -99,20 +100,31 @@ function renderEvents(events) {
   events.forEach(event => {
     const card = document.createElement("article");
     card.className = "event-card";
+
     const dateText = formatDateTimeFi(event.dateObj);
+    const popularity = getPopularityLabel(event.popularity);
 
     card.innerHTML = `
+      ${event.mediaFilename ? `<img class="event-img" src="https://api.kide.app/media/${event.mediaFilename}" alt="Tapahtuman kuva">` : ""}
       <h3 class="event-title">${escapeHtml(event.title)}</h3>
       <div class="event-meta">
         <div><strong>Päivämäärä:</strong> ${dateText}</div>
         <div><strong>Sijainti:</strong> ${escapeHtml(event.location)}</div>
         <div><strong>Järjestäjä:</strong> ${escapeHtml(event.organizer)}</div>
+        <div><strong>${escapeHtml(event.description)}</strong></div>
+        <div class="popularity ${popularity.level}">${popularity.label}</div>
       </div>
-      <p class="event-description">${escapeHtml(event.description)}</p>
+      <a class="event-link" href="${event.sourceUrl}" target="_blank" rel="noopener noreferrer">Lisätiedot →</a>
     `;
 
     eventsContainer.appendChild(card);
   });
+}
+
+function getPopularityLabel(score = 0) {
+  if (score >= 50) return { level: "high", label: "🔥 Suosio: korkea" };
+  if (score >= 20) return { level: "medium", label: "⭐ Suosio: keskitaso" };
+  return { level: "low", label: "🙂 Suosio: matala" };
 }
 
 function showError(message) {

@@ -1,14 +1,14 @@
-// events-fetch.js v8
+// events-fetch.js v10
 
-const DAYS_WINDOW = 7; // Viikko kerrallaan
+const DAYS_WINDOW = 7;
 let allEvents = [];
-let loadedWeeks = new Set();
 let currentStartDate = getTodayAtMidnight();
 
 const HERVANTA = { lat: 61.4499, lon: 23.8500 };
 const VERY_NEAR_HERVANTA_KM = 3;
 const NEAR_HERVANTA_KM = 7;
 
+// Tunnettujen tapahtumapaikkojen koordinaatit (kaikki aiemmin listatut Hervannan lähellä olevat)
 const placeCoords = {
   "Hervanta": { lat: 61.4499, lon: 23.8500 },
   "Hervannan kampus": { lat: 61.4495, lon: 23.8570 },
@@ -19,15 +19,28 @@ const placeCoords = {
   "Bommari": { lat: 61.4502, lon: 23.8576 },
   "SportUni Kauppi": { lat: 61.5038423, lon: 23.8064888 },
   "SportUni, Kaupin kampus": { lat: 61.5038423, lon: 23.8064888 },
+  "SportUni Kauppi (TAMK liikuntakeskus, L-rakennus)": { lat: 61.5038423, lon: 23.8064888 },
+  "Kauppi": { lat: 61.5038423, lon: 23.8064888 },
   "Sherlock Holmes": { lat: 61.4983958, lon: 23.7677662 },
   "Sherlock Holmes Bar": { lat: 61.4983958, lon: 23.7677662 },
+  "Sherlock Holmes The Bar": { lat: 61.4983958, lon: 23.7677662 },
   "Restaurant DAM": { lat: 61.5008549, lon: 23.7636317 },
   "MMA Team 300": { lat: 61.5003608, lon: 23.7720876 },
   "MMATeam 300 Tampereen keskustassa": { lat: 61.5003608, lon: 23.7720876 },
   "Kaijakka": { lat: 61.4946562, lon: 23.7596234 },
   "Tampereen Ylioppilasteatteri": { lat: 61.4988265, lon: 23.7821438 },
+  "Ylioppilasteatteri": { lat: 61.4988265, lon: 23.7821438 },
+  "Sin City and H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 },
+  "Sin City": { lat: 61.4982, lon: 23.7608 },
+  "H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 },
   "Ikaalisten Kylpylä & Spa": { lat: 61.7699, lon: 23.0676 },
-  "Sin City and H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 }
+  "TAMK Main Campus": { lat: 61.5037721, lon: 23.8087612 },
+  "TAMK Stage C1-05": { lat: 61.5037721, lon: 23.8087612 },
+  "RestoLab G0-08, TAMK Main Campus": { lat: 61.5037721, lon: 23.8087612 },
+  "TAMK": { lat: 61.5037721, lon: 23.8087612 },
+  "Sport-Uni Keskusta": { lat: 61.4927922, lon: 23.781083 },
+  "Sport-Uni Keskusta, Atalpa": { lat: 61.4927922, lon: 23.781083 },
+  "Atalpa": { lat: 61.4927922, lon: 23.781083 },
 };
 
 const eventsContainer = document.getElementById("eventsContainer");
@@ -37,56 +50,49 @@ const startDateInput = document.getElementById("startDate");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
-let showOnlyNearHervanta = false;
-
 init();
 
 async function init() {
   startDateInput.value = formatDateForInput(currentStartDate);
-
-  await ensureEventsForWeek(currentStartDate);
+  await loadAllEvents();
   render();
 
-  prevBtn.addEventListener("click", async () => {
+  prevBtn.addEventListener("click", () => {
     currentStartDate = addDays(currentStartDate, -DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
-    await ensureEventsForWeek(currentStartDate);
     render();
   });
 
-  nextBtn.addEventListener("click", async () => {
+  nextBtn.addEventListener("click", () => {
     currentStartDate = addDays(currentStartDate, DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
-    await ensureEventsForWeek(currentStartDate);
     render();
   });
 
-  startDateInput.addEventListener("change", async (e) => {
+  startDateInput.addEventListener("change", e => {
     currentStartDate = parseInputDate(e.target.value);
-    await ensureEventsForWeek(currentStartDate);
     render();
   });
 }
 
-// Lataa kaksi sivua Kide APIsta (50 + 50)
-async function loadEvents() {
-  const pages = [1, 2];
+async function loadAllEvents() {
+  const pages = [1, 2]; // 50+50
   let events = [];
 
   for (const page of pages) {
     const url = `https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=50&page=${page}`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) continue;
     const data = await res.json();
-    if (!data.model || !Array.isArray(data.model)) continue;
+    if (!data.model) continue;
 
     const mapped = data.model.map(e => ({
       title: e.name,
       dateObj: new Date(e.dateActualFrom),
       location: e.place || "Tuntematon",
       organizer: e.companyName || "",
-      minPrice: e.minPrice?.eur,
-      maxPrice: e.maxPrice?.eur,
+      minPrice: e.minPrice?.eur / 100,
+      maxPrice: e.maxPrice?.eur / 100,
       availability: e.availability ?? "N/A",
       popularity: e.favoritedTimes ?? 0
     }));
@@ -94,38 +100,16 @@ async function loadEvents() {
     events = events.concat(mapped);
   }
 
-  return events;
-}
-
-async function ensureEventsForWeek(startDate) {
-  const weekKey = formatDateForInput(startDate);
-  if (!loadedWeeks.has(weekKey)) {
-    try {
-      const newEvents = await loadEvents();
-      mergeEvents(newEvents);
-      loadedWeeks.add(weekKey);
-    } catch (err) {
-      console.error("Virhe:", err);
-      showError("Tapahtumien lataaminen epäonnistui.");
-    }
-  }
-}
-
-function mergeEvents(newEvents) {
-  const existingKeys = new Set(allEvents.map(e => e.title + e.dateObj.toISOString()));
-  newEvents.forEach(e => {
+  // Poista duplikaatit
+  const seen = new Set();
+  allEvents = events.filter(e => {
     const key = e.title + e.dateObj.toISOString();
-    if (!existingKeys.has(key)) allEvents.push(e);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
-  allEvents.sort((a,b) => a.dateObj - b.dateObj);
-}
 
-function formatPrice(min, max) {
-  if (!min && !max) return "Ei hintaa saatavilla";
-  const minStr = min ? (min).toFixed(2).replace(".", ",") : null;
-  const maxStr = max ? (max).toFixed(2).replace(".", ",") : null;
-  if (!max || min === max) return `alk. ${minStr} €`;
-  return `alk. ${minStr}–${maxStr} €`;
+  allEvents.sort((a,b) => a.dateObj - b.dateObj);
 }
 
 function getDistanceKm(lat1, lon1, lat2, lon2) {
@@ -146,18 +130,14 @@ function getDistanceInfo(location) {
 }
 
 function render() {
-  let filtered = filterEvents(allEvents, currentStartDate, DAYS_WINDOW);
-  if (showOnlyNearHervanta) {
-    filtered = filtered.filter(e => getDistanceInfo(e.location));
-  }
+  const filtered = allEvents.filter(e => {
+    const start = currentStartDate;
+    const end = addDays(start, DAYS_WINDOW);
+    return e.dateObj >= start && e.dateObj < end;
+  });
+
   updateRangeInfo(filtered);
   renderEvents(filtered);
-}
-
-function filterEvents(events, startDate, daysWindow) {
-  const start = new Date(startDate);
-  const end = addDays(start, daysWindow);
-  return events.filter(e => e.dateObj >= start && e.dateObj < end);
 }
 
 function updateRangeInfo(events) {
@@ -179,7 +159,9 @@ function renderEvents(events) {
     const popularity = getPopularityLabel(e.popularity);
     const dateText = formatDateTimeFi(e.dateObj);
 
-    const distanceHtml = distInfo ? `<div class="distance ${distInfo.class}">📍 ${distInfo.label} (${distInfo.km} km)</div>` : "";
+    const distanceHtml = distInfo
+      ? `<div class="distance ${distInfo.class}">📍 ${distInfo.label} (${distInfo.km} km)</div>`
+      : "";
 
     const card = document.createElement("article");
     card.className = "event-card";
@@ -211,16 +193,16 @@ function getCustomDescription(event) {
   const title = event.title.toLowerCase();
   if (title.includes("appro")) return "APPROT: Rastisuunnistus, jossa kierretään baareja tai ravintoloita passiin.";
   if (title.includes("sitsit")) return "SITSIT: Perinteiset opiskelijasitsit laulujen ja ohjelman kera.";
-  if (title.includes("sauna")) return "SAUNAILTA: Rentoa hengailua, saunomista ja lautapelejä opiskelijoille.";
-  if (title.includes("afterwork") || title.includes("network")) return "AFTERWORK: Rennompi verkostoitumisilta opiskelijoille ja alumneille.";
   if (title.includes("bileet") || title.includes("party")) return "BILEET: Rento opiskelijabileilta haalarikansalle. Musiikkia, teemajuomia ja paljon porukkaa.";
   return "Ei tarkempaa kuvausta saatavilla.";
 }
 
-function showError(message) {
-  rangeTitle.textContent = "Virhe";
-  eventCount.textContent = "";
-  eventsContainer.innerHTML = `<div class="empty-state"><h3>${message}</h3></div>`;
+function formatPrice(min, max) {
+  if (!min && !max) return "Ei hintaa saatavilla";
+  const minStr = min ? min.toFixed(2).replace(".", ",") : null;
+  const maxStr = max ? max.toFixed(2).replace(".", ",") : null;
+  if (!max || min === max) return `alk. ${minStr} €`;
+  return `alk. ${minStr}–${maxStr} €`;
 }
 
 function getTodayAtMidnight() {
@@ -269,15 +251,3 @@ function escapeHtml(str) {
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
 }
-
-// OPTIONAL: Toggle Hervanta only
-const toggleHervantaBtn = document.createElement("button");
-toggleHervantaBtn.textContent = "Näytä vain Hervannan lähellä";
-toggleHervantaBtn.className = "nav-btn";
-toggleHervantaBtn.style.marginBottom = "1rem";
-toggleHervantaBtn.addEventListener("click", () => {
-  showOnlyNearHervanta = !showOnlyNearHervanta;
-  toggleHervantaBtn.textContent = showOnlyNearHervanta ? "Näytä kaikki" : "Näytä vain Hervannan lähellä";
-  render();
-});
-document.querySelector("main.container").prepend(toggleHervantaBtn);

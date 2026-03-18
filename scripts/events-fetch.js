@@ -19,7 +19,7 @@ async function init() {
     if (allEvents.length === 0) {
       showError("API ei palauttanut tapahtumia tällä hetkellä.");
     } else {
-      await render();
+      render();
     }
   } catch (error) {
     console.error("Tapahtumien latauksessa virhe:", error);
@@ -29,26 +29,29 @@ async function init() {
   prevBtn.addEventListener("click", async () => {
     currentStartDate = addDays(currentStartDate, -DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
-    await render();
+    await ensureEventsLoadedForWeek(currentStartDate, DAYS_WINDOW);
+    render();
   });
 
   nextBtn.addEventListener("click", async () => {
     currentStartDate = addDays(currentStartDate, DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
-    await render();
+    await ensureEventsLoadedForWeek(currentStartDate, DAYS_WINDOW);
+    render();
   });
 
   startDateInput.addEventListener("change", async (e) => {
     currentStartDate = parseInputDate(e.target.value);
-    await render();
+    await ensureEventsLoadedForWeek(currentStartDate, DAYS_WINDOW);
+    render();
   });
 }
 
 // Muuntaa hinnat sentit -> eurot
 function formatPrice(minPrice, maxPrice) {
-  if (minPrice == null && maxPrice == null) return "Ei hintaa saatavilla";
-  const min = minPrice != null ? (minPrice).toFixed(2) : null;
-  const max = maxPrice != null ? (maxPrice).toFixed(2) : null;
+  if (!minPrice && !maxPrice) return "Ei hintaa saatavilla";
+  const min = minPrice ? (minPrice).toFixed(2) : null;
+  const max = maxPrice ? (maxPrice).toFixed(2) : null;
   if (!max || min === max) return `alk. ${min} €`;
   return `alk. ${min}–${max} €`;
 }
@@ -99,13 +102,15 @@ async function loadEvents() {
   })).sort((a,b)=>a.dateObj-b.dateObj);
 }
 
-// Tarkistaa, onko viikon tapahtumat ladattu, ja hakee tarvittaessa lisää
+// Varmistaa, että tarvittavat tapahtumat on ladattu, estää tuplauksia
 async function ensureEventsLoadedForWeek(startDate, daysWindow) {
   const weekEvents = filterEvents(allEvents, startDate, daysWindow);
   if (weekEvents.length === 0) {
     try {
       const newEvents = await loadEvents();
-      allEvents = allEvents.concat(newEvents);
+      const existingKeys = new Set(allEvents.map(e => e.title + e.dateObj.getTime()));
+      const uniqueNewEvents = newEvents.filter(e => !existingKeys.has(e.title + e.dateObj.getTime()));
+      allEvents = allEvents.concat(uniqueNewEvents);
     } catch (e) {
       console.error("Uusien tapahtumien haku epäonnistui:", e);
     }
@@ -113,8 +118,7 @@ async function ensureEventsLoadedForWeek(startDate, daysWindow) {
 }
 
 // Renderöinti
-async function render() {
-  await ensureEventsLoadedForWeek(currentStartDate, DAYS_WINDOW);
+function render() {
   const filteredEvents = filterEvents(allEvents, currentStartDate, DAYS_WINDOW);
   updateRangeInfo(filteredEvents);
   renderEvents(filteredEvents);

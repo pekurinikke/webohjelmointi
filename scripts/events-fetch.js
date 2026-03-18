@@ -155,32 +155,32 @@ function renderEvents(events) {
   }
 
   events.forEach(e => {
-    const distInfo = getDistanceInfo(e.location);
-    const popularity = getPopularityLabel(e.popularity);
-    const dateText = formatDateTimeFi(e.dateObj);
+  const distInfo = getDistanceInfo(e.location);
+  const popularity = getPopularityLabel(e.popularity);
+  const dateText = formatDateTimeFi(e.dateObj);
 
-    const distanceHtml = distInfo
-      ? `<div class="distance ${distInfo.class}">📍 ${distInfo.label} (${distInfo.km} km)</div>`
-      : "";
+  const distanceHtml = distInfo
+    ? `<div class="distance ${distInfo.class}">📍 ${distInfo.label} (${distInfo.km} km)</div>`
+    : "";
 
-    const card = document.createElement("article");
-    card.className = "event-card";
-    card.innerHTML = `
-      <h3 class="event-title">${escapeHtml(e.title)}</h3>
-      <div class="event-meta">
-        <div><strong>Päivämäärä:</strong> ${dateText}</div>
-        <div><strong>Sijainti:</strong> ${escapeHtml(e.location)}</div>
-        ${distanceHtml}
-        <div><strong>Järjestäjä:</strong> ${escapeHtml(e.organizer)}</div>
-        <div><strong>Hinta:</strong> ${formatPrice(e.minPrice, e.maxPrice)}</div>
-        <div><strong>Paikkoja jäljellä:</strong> ${escapeHtml(e.availability)}</div>
-        <div class="popularity ${popularity.level}">${popularity.label}</div>
-        <div><strong>Tykkäykset:</strong> ${e.popularity}</div>
-        <p class="event-description">${escapeHtml(getCustomDescription(e))}</p>
-      </div>
-    `;
-    eventsContainer.appendChild(card);
-  });
+  const card = document.createElement("article");
+  card.className = "event-card";
+  card.innerHTML = `
+    <h3 class="event-title">${escapeHtml(e.title)}</h3>
+    <div class="event-meta">
+      <div><strong>Päivämäärä:</strong> ${dateText}</div>
+      <div><strong>Sijainti:</strong> ${escapeHtml(e.location)}</div>
+      ${distanceHtml}
+      <div><strong>Järjestäjä:</strong> ${escapeHtml(e.organizer)}</div>
+      <div><strong>Hinta:</strong> ${formatPrice(e.minPrice, e.maxPrice)}</div>
+      <div><strong>Paikkoja jäljellä:</strong> ${escapeHtml(e.availability)}</div>
+      <div class="popularity ${popularity.level}">${popularity.label}</div>
+      <div><strong>Tykkäykset:</strong> ${e.popularity}</div>
+      <p class="event-description">${escapeHtml(getCustomDescription(e))}</p>
+    </div>
+  `;
+  eventsContainer.appendChild(card);
+});
 }
 
 function getPopularityLabel(score = 0) {

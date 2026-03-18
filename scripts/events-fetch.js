@@ -1,6 +1,6 @@
-const DAYS_WINDOW = 7; // Viikko kerrallaan
+const DAYS_WINDOW = 7; 
 let allEvents = [];
-let hasLoadedEvents = false; // Haetaan API-data vain kerran
+let hasLoadedEvents = false;
 let currentStartDate = getTodayAtMidnight();
 
 const eventsContainer = document.getElementById("eventsContainer");
@@ -10,31 +10,24 @@ const startDateInput = document.getElementById("startDate");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const sortHervantaCheckbox = document.getElementById("sortHervanta");
+const filterHervantaBtn = document.getElementById("filterHervantaBtn");
 
 // Kiinteä vertailupiste Hervannalle
-const HERVANTA = {
-  lat: 61.4499,
-  lon: 23.8500
-};
+const HERVANTA = { lat: 61.4499, lon: 23.8500 };
 
 // 2-tasoinen Hervanta-läheisyys
-const VERY_NEAR_HERVANTA_KM = 3;   // Todella lähellä
-const NEAR_HERVANTA_KM = 7;        // Kohtuullisen lähellä
+const VERY_NEAR_HERVANTA_KM = 3;
+const NEAR_HERVANTA_KM = 7;
 
 // Tunnettujen tapahtumapaikkojen koordinaatit
 const placeCoords = {
-  // Hervanta / kampus
   "Hervanta": { lat: 61.4499, lon: 23.8500 },
   "Hervannan kampus": { lat: 61.4495, lon: 23.8570 },
   "Tampereen yliopisto Hervanta": { lat: 61.4495, lon: 23.8570 },
   "Tampereen yliopisto, Hervannan kampus": { lat: 61.4495, lon: 23.8570 },
   "Tampere University Hervanta Campus": { lat: 61.4495, lon: 23.8570 },
-
-  // Selvästi Hervannan lähellä
   "Bricks": { lat: 61.4498, lon: 23.8510 },
   "Bommari": { lat: 61.4502, lon: 23.8576 },
-
-  // Keskusta / Tulli / muut
   "Tullikamari": { lat: 61.4980, lon: 23.7737 },
   "Pakkahuone": { lat: 61.4979, lon: 23.7741 },
   "Klubi": { lat: 61.4978, lon: 23.7609 },
@@ -43,45 +36,21 @@ const placeCoords = {
   "Tavara-asema": { lat: 61.4957, lon: 23.7730 },
   "Ilona": { lat: 61.4982, lon: 23.7605 },
   "Olympia": { lat: 61.4970, lon: 23.7658 },
-
-  // Uusia / Kide-haun pohjalta
   "Ole.Fit Tampella": { lat: 61.5034893, lon: 23.764089 },
-
   "TAMK Main Campus": { lat: 61.5037721, lon: 23.8087612 },
   "TAMK Stage C1-05": { lat: 61.5037721, lon: 23.8087612 },
   "Tampere University of Applied Sciences (TAMK) - Main campus": { lat: 61.5037721, lon: 23.8087612 },
   "RestoLab G0-08, TAMK Main Campus": { lat: 61.5037721, lon: 23.8087612 },
   "TAMK": { lat: 61.5037721, lon: 23.8087612 },
-
   "SportUni Kauppi": { lat: 61.5038423, lon: 23.8064888 },
-  "SportUni, Kaupin kampus": { lat: 61.5038423, lon: 23.8064888 },
-  "SportUni Kauppi (TAMK liikuntakeskus, L-rakennus)": { lat: 61.5038423, lon: 23.8064888 },
-  "Kauppi": { lat: 61.5038423, lon: 23.8064888 },
-
   "Sport-Uni Keskusta": { lat: 61.4927922, lon: 23.781083 },
-  "Sport-Uni Keskusta, Atalpa": { lat: 61.4927922, lon: 23.781083 },
-  "Atalpa": { lat: 61.4927922, lon: 23.781083 },
-
   "Sherlock Holmes": { lat: 61.4983958, lon: 23.7677662 },
-  "Sherlock Holmes Bar": { lat: 61.4983958, lon: 23.7677662 },
-  "Sherlock Holmes The Bar": { lat: 61.4983958, lon: 23.7677662 },
-
   "Restaurant DAM": { lat: 61.5008549, lon: 23.7636317 },
-
   "MMA Team 300": { lat: 61.5003608, lon: 23.7720876 },
-  "MMATeam 300 Tampereen keskustassa": { lat: 61.5003608, lon: 23.7720876 },
-
   "Kaijakka": { lat: 61.4946562, lon: 23.7596234 },
-
   "Tampereen Ylioppilasteatteri": { lat: 61.4988265, lon: 23.7821438 },
-  "Ylioppilasteatteri": { lat: 61.4988265, lon: 23.7821438 },
-
-  // Uudet lisäykset v2.1
   "Ikaalisten Kylpylä & Spa": { lat: 61.7699, lon: 23.0676 },
-
-  "Sin City and H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 },
-  "Sin City": { lat: 61.4982, lon: 23.7608 },
-  "H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 }
+  "Sin City and H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 }
 };
 
 init();
@@ -109,11 +78,18 @@ async function init() {
     render();
   });
 
-  sortHervantaCheckbox?.addEventListener("change", () => {
-    render();
+  sortHervantaCheckbox?.addEventListener("change", () => render());
+
+  filterHervantaBtn?.addEventListener("click", () => {
+    const filtered = allEvents
+      .filter(e => e.veryNearHervanta || e.nearHervanta)
+      .filter(e => e.dateObj >= currentStartDate && e.dateObj < addDays(currentStartDate, DAYS_WINDOW))
+      .sort((a,b) => a.dateObj - b.dateObj);
+
+    updateRangeInfo(filtered);
+    renderEvents(filtered);
   });
 }
-
 // Haetaan API-data vain kerran
 async function ensureEventsLoaded() {
   if (hasLoadedEvents) return;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tampereen opiskelijatapahtumat</title>
+  <title>tapahtumatutka</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -17,20 +17,11 @@
   <main class="container">
     <section class="controls">
       <button id="prevBtn" class="nav-btn">← Edellinen viikko</button>
-
       <div class="date-controls">
         <label for="startDate">Viikko alkaa:</label>
         <input type="date" id="startDate" />
       </div>
-
       <button id="nextBtn" class="nav-btn">Seuraava viikko →</button>
-    </section>
-
-    <section class="extra-controls">
-      <label class="checkbox-label">
-        <input type="checkbox" id="sortHervanta" />
-        <span>Näytä Hervannan lähellä olevat ensin</span>
-      </label>
     </section>
 
     <section class="range-info">
@@ -43,6 +34,6 @@
     </section>
   </main>
 
-  <script src="events-fetch.js"></script>
+  <script src="scripts/events-fetch.js"></script>
 </body>
 </html>

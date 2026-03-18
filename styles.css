@@ -1,3 +1,4 @@
+/* --- Perusasetukset --- */
 body {
   font-family: Arial, sans-serif;
   background-color: #fff9e6; /* pastellinkeltainen */
@@ -24,13 +25,13 @@ body {
   color: #555;
 }
 
+/* --- Navigointi ja kontrollit --- */
 .controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 1rem 0;
   flex-wrap: wrap;
-  gap: 0.75rem;
 }
 
 .date-controls {
@@ -43,33 +44,14 @@ body {
   border: 1px solid #f5d266;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .nav-btn:hover {
   background-color: #ffe066;
 }
 
-.extra-controls {
-  margin: 0.5rem 0 1rem;
-}
-
-.checkbox-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #fff6cc;
-  border: 1px solid #f5d266;
-  border-radius: 8px;
-  padding: 0.6rem 0.9rem;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.checkbox-label input[type="checkbox"] {
-  transform: scale(1.15);
-  cursor: pointer;
-}
-
+/* --- Tapahtumatiedot --- */
 .range-info {
   text-align: center;
   margin-bottom: 1rem;
@@ -83,14 +65,15 @@ body {
 
 .event-card {
   background-color: #fff8d6;
-  border: 1px solid #f5e6a1;
   border-radius: 8px;
   padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.event-card.near-hervanta {
-  border: 2px solid #f0c94d;
-  box-shadow: 0 2px 8px rgba(240, 201, 77, 0.18);
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .event-title {
@@ -103,17 +86,7 @@ body {
   margin-bottom: 0.3rem;
 }
 
-.distance-badge {
-  display: inline-block;
-  margin: 0.25rem 0.35rem 0.45rem 0;
-  padding: 0.3rem 0.55rem;
-  background-color: #fff0a6;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  line-height: 1.2;
-}
-
+/* --- Suosio --- */
 .popularity.high {
   color: #e65c00;
   font-weight: bold;
@@ -129,35 +102,30 @@ body {
   font-weight: bold;
 }
 
-.event-description {
-  margin-top: 0.75rem;
-  margin-bottom: 0;
-  line-height: 1.45;
+/* --- Hervanta-läheisyys border-värit --- */
+.event-card[data-near="very-near"] {
+  border: 2px solid #4CAF50; /* vihreä */
 }
 
+.event-card[data-near="near"] {
+  border: 2px solid #FFC107; /* keltainen */
+}
+
+.event-card[data-near="far"] {
+  border: 2px solid #9E9E9E; /* harmaa */
+}
+
+/* --- Tyhjä tila --- */
 .empty-state {
   text-align: center;
   padding: 2rem;
   font-style: italic;
 }
 
-@media (max-width: 700px) {
+/* --- Responsiivisuus --- */
+@media (max-width: 600px) {
   .controls {
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .nav-btn {
-    width: 100%;
-  }
-
-  .date-controls {
-    text-align: center;
-  }
-
-  .checkbox-label {
-    width: 100%;
-    justify-content: center;
-    box-sizing: border-box;
+    gap: 0.5rem;
   }
 }

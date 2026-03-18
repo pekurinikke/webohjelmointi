@@ -9,6 +9,9 @@ const startDateInput = document.getElementById("startDate");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
+// Fallback-kuva pastellinkeltaisena
+const FALLBACK_IMAGE = "scripts/fallback-image.png";
+
 init();
 
 async function init() {
@@ -44,6 +47,12 @@ async function init() {
   });
 }
 
+function formatPrice(minPrice, maxPrice) {
+  if (!minPrice && !maxPrice) return "Ei hintaa saatavilla";
+  if (minPrice === maxPrice || !maxPrice) return `alk. ${minPrice} €`;
+  return `alk. ${minPrice}–${maxPrice} €`;
+}
+
 async function loadEvents() {
   const url = "https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=50";
   const response = await fetch(url);
@@ -57,13 +66,13 @@ async function loadEvents() {
   return data.model.map(event => ({
     title: event.name,
     dateObj: new Date(event.dateActualFrom),
-    description: `Hinta: alk. ${event.minPrice?.eur || "N/A"}–${event.maxPrice?.eur || "N/A"} €`,
     location: event.place || "Tuntematon",
     organizer: event.companyName || "",
     sourceUrl: `https://kide.app/products/${event.id}`,
     popularity: event.favoritedTimes || 0,
-    mediaFilename: event.mediaFilename || ""
-  })).sort((a, b) => a.dateObj - b.dateObj);
+    mediaFilename: event.mediaFilename || "",
+    description: `Hinta: ${formatPrice(event.minPrice?.eur, event.maxPrice?.eur)} | Paikkoja jäljellä: ${event.availability || "N/A"}`
+  })).sort((a,b)=>a.dateObj-b.dateObj);
 }
 
 function render() {
@@ -104,8 +113,12 @@ function renderEvents(events) {
     const dateText = formatDateTimeFi(event.dateObj);
     const popularity = getPopularityLabel(event.popularity);
 
+    const imgUrl = event.mediaFilename
+      ? `https://api.kide.app/media/${event.mediaFilename}`
+      : FALLBACK_IMAGE;
+
     card.innerHTML = `
-      ${event.mediaFilename ? `<img class="event-img" src="https://api.kide.app/media/${event.mediaFilename}" alt="Tapahtuman kuva">` : ""}
+      <img class="event-img" src="${imgUrl}" alt="Tapahtuman kuva" onerror="this.src='${FALLBACK_IMAGE}'">
       <h3 class="event-title">${escapeHtml(event.title)}</h3>
       <div class="event-meta">
         <div><strong>Päivämäärä:</strong> ${dateText}</div>

@@ -5,23 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hervannan opiskelijatapahtumat</title>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="favicon.ico" />
 </head>
 <body>
   <header class="page-header">
     <div class="container">
       <h1>Hervannan opiskelijatapahtumat</h1>
-      <p class="subtitle">Selaa Hervannan alueen opiskelijatapahtumia 3 viikon jaksoissa.</p>
+      <p class="subtitle">
+        Selaa Hervannan alueen opiskelijatapahtumia 3 viikon jaksoissa.
+      </p>
     </div>
   </header>
 
   <main class="container">
     <section class="controls">
       <button id="prevBtn" class="nav-btn">← Edelliset 3 viikkoa</button>
+
       <div class="date-controls">
         <label for="startDate">Aikaväli alkaa:</label>
         <input type="date" id="startDate" />
       </div>
+
       <button id="nextBtn" class="nav-btn">Seuraavat 3 viikkoa →</button>
     </section>
 
@@ -31,7 +34,7 @@
     </section>
 
     <section id="eventsContainer" class="events-grid">
-      <!-- Tapahtumat renderöidään tänne -->
+      <!-- Eventit renderöidään tänne -->
     </section>
   </main>
 

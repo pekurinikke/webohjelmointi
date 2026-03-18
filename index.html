@@ -10,22 +10,18 @@
   <header class="page-header">
     <div class="container">
       <h1>Hervannan opiskelijatapahtumat</h1>
-      <p class="subtitle">
-        Selaa Hervannan alueen opiskelijatapahtumia 3 viikon jaksoissa.
-      </p>
+      <p class="subtitle">Selaa Hervannan alueen opiskelijatapahtumia viikoittain.</p>
     </div>
   </header>
 
   <main class="container">
     <section class="controls">
-      <button id="prevBtn" class="nav-btn">← Edelliset 3 viikkoa</button>
-
+      <button id="prevBtn" class="nav-btn">← Edellinen viikko</button>
       <div class="date-controls">
-        <label for="startDate">Aikaväli alkaa:</label>
+        <label for="startDate">Viikko alkaa:</label>
         <input type="date" id="startDate" />
       </div>
-
-      <button id="nextBtn" class="nav-btn">Seuraavat 3 viikkoa →</button>
+      <button id="nextBtn" class="nav-btn">Seuraava viikko →</button>
     </section>
 
     <section class="range-info">
@@ -34,7 +30,7 @@
     </section>
 
     <section id="eventsContainer" class="events-grid">
-      <!-- Eventit renderöidään tänne -->
+      <!-- Tapahtumakortit renderöidään tänne -->
     </section>
   </main>
 

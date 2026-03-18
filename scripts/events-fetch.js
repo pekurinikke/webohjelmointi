@@ -1,4 +1,4 @@
-const DAYS_WINDOW = 21;
+const DAYS_WINDOW = 7; // Viikko kerrallaan
 let allEvents = [];
 let currentStartDate = getTodayAtMidnight();
 
@@ -44,11 +44,13 @@ async function init() {
   });
 }
 
-// Hinta järkevästi
-function formatPrice(minPrice, maxPrice) {
-  if (!minPrice && !maxPrice) return "Ei hintaa saatavilla";
-  if (!maxPrice || minPrice === maxPrice) return `alk. ${minPrice} €`;
-  return `alk. ${minPrice}–${maxPrice} €`;
+// Muunna sentit euroiksi
+function formatPrice(minPriceCents, maxPriceCents) {
+  if (!minPriceCents && !maxPriceCents) return "Ei hintaa saatavilla";
+  const min = minPriceCents ? (minPriceCents / 100).toFixed(2) : null;
+  const max = maxPriceCents ? (maxPriceCents / 100).toFixed(2) : null;
+  if (!max || min === max) return `alk. ${min} €`;
+  return `alk. ${min}–${max} €`;
 }
 
 async function loadEvents() {
@@ -66,10 +68,11 @@ async function loadEvents() {
     dateObj: new Date(event.dateActualFrom),
     location: event.place || "Tuntematon",
     organizer: event.companyName || "",
-    // Linkki aina Kide.appin hakusivulle nimellä
-    sourceUrl: `https://kide.app/search?query=${encodeURIComponent(event.name)}`,
-    popularity: event.favoritedTimes || 0,
-    description: `Hinta: ${formatPrice(event.minPrice?.eur, event.maxPrice?.eur)} | Paikkoja jäljellä: ${event.availability ?? "N/A"}`
+    minPrice: event.minPrice?.eur,
+    maxPrice: event.maxPrice?.eur,
+    availability: event.availability ?? "N/A",
+    popularity: event.favoritedTimes ?? 0,
+    description: event.description || "Ei kuvausta saatavilla."
   })).sort((a,b)=>a.dateObj-b.dateObj);
 }
 
@@ -98,7 +101,7 @@ function renderEvents(events) {
     eventsContainer.innerHTML = `
       <div class="empty-state">
         <h3>Ei tapahtumia tällä aikavälillä</h3>
-        <p>Kokeile siirtyä seuraavaan 3 viikon jaksoon tai muuta aloituspäivää.</p>
+        <p>Kokeile siirtyä seuraavaan viikkoon tai muuta aloituspäivää.</p>
       </div>
     `;
     return;
@@ -117,10 +120,12 @@ function renderEvents(events) {
         <div><strong>Päivämäärä:</strong> ${dateText}</div>
         <div><strong>Sijainti:</strong> ${escapeHtml(event.location)}</div>
         <div><strong>Järjestäjä:</strong> ${escapeHtml(event.organizer)}</div>
-        <div><strong>${escapeHtml(event.description)}</strong></div>
+        <div><strong>Hinta:</strong> ${formatPrice(event.minPrice, event.maxPrice)}</div>
+        <div><strong>Paikkoja jäljellä:</strong> ${escapeHtml(event.availability)}</div>
         <div class="popularity ${popularity.level}">${popularity.label}</div>
+        <div><strong>Tykkäykset:</strong> ${event.popularity}</div>
+        <p class="event-description">${escapeHtml(event.description)}</p>
       </div>
-      <a class="event-link" href="${event.sourceUrl}" target="_blank" rel="noopener noreferrer">Lisätiedot →</a>
     `;
 
     eventsContainer.appendChild(card);

@@ -46,9 +46,12 @@ async function init() {
 
 // Muuntaa hinnat sentit -> eurot
 function formatPrice(minPrice, maxPrice) {
-  if (!minPrice && !maxPrice) return "Ei hintaa saatavilla";
-  const min = minPrice ? (minPrice).toFixed(2) : null;
-  const max = maxPrice ? (maxPrice).toFixed(2) : null;
+  const toEuro = (price) => price != null ? (price / 100).toFixed(2) : null;
+
+  const min = toEuro(minPrice);
+  const max = toEuro(maxPrice);
+
+  if (!min && !max) return "Ei hintaa saatavilla";
   if (!max || min === max) return `alk. ${min} €`;
   return `alk. ${min}–${max} €`;
 }

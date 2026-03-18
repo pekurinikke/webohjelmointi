@@ -69,8 +69,10 @@ function mergeEvents(newEvents) {
 // Muuntaa hinnat senteistä euroiksi muodossa 5,00 €
 function formatPrice(minPrice, maxPrice) {
   if (!minPrice && !maxPrice) return "Ei hintaa saatavilla";
-  const min = minPrice ? (minPrice).toFixed(2).replace(".", ",") : null;
-  const max = maxPrice ? (maxPrice).toFixed(2).replace(".", ",") : null;
+
+  const min = minPrice ? (minPrice / 100).toFixed(2) : null;
+  const max = maxPrice ? (maxPrice / 100).toFixed(2) : null;
+
   if (!max || min === max) return `alk. ${min} €`;
   return `alk. ${min}–${max} €`;
 }

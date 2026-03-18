@@ -1,5 +1,6 @@
 const DAYS_WINDOW = 7; // Viikko kerrallaan
 let allEvents = [];
+let loadedWeeks = new Set(); // Seurataan ladattuja viikkoja
 let currentStartDate = getTodayAtMidnight();
 
 const eventsContainer = document.getElementById("eventsContainer");
@@ -14,44 +15,62 @@ init();
 async function init() {
   startDateInput.value = formatDateForInput(currentStartDate);
 
-  try {
-    allEvents = await loadEvents();
-    if (allEvents.length === 0) {
-      showError("API ei palauttanut tapahtumia tällä hetkellä.");
-    } else {
-      render();
-    }
-  } catch (error) {
-    console.error("Tapahtumien latauksessa virhe:", error);
-    showError("Tapahtumien lataaminen epäonnistui.");
-  }
+  await ensureEventsForWeek(currentStartDate);
+  render();
 
   prevBtn.addEventListener("click", async () => {
     currentStartDate = addDays(currentStartDate, -DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
-    await ensureEventsLoadedForWeek(currentStartDate, DAYS_WINDOW);
+    await ensureEventsForWeek(currentStartDate);
     render();
   });
 
   nextBtn.addEventListener("click", async () => {
     currentStartDate = addDays(currentStartDate, DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
-    await ensureEventsLoadedForWeek(currentStartDate, DAYS_WINDOW);
+    await ensureEventsForWeek(currentStartDate);
     render();
   });
 
   startDateInput.addEventListener("change", async (e) => {
     currentStartDate = parseInputDate(e.target.value);
-    await ensureEventsLoadedForWeek(currentStartDate, DAYS_WINDOW);
+    await ensureEventsForWeek(currentStartDate);
     render();
   });
 }
 
-// Muuntaa hinnat sentit -> eurot
+// Tarkistaa ja lataa tarvittaessa kyseisen viikon tapahtumat
+async function ensureEventsForWeek(startDate) {
+  const weekKey = formatDateForInput(startDate);
+  if (!loadedWeeks.has(weekKey)) {
+    try {
+      const newEvents = await loadEvents();
+      mergeEvents(newEvents);
+      loadedWeeks.add(weekKey);
+    } catch (error) {
+      console.error("Tapahtumien latauksessa virhe:", error);
+      showError("Tapahtumien lataaminen epäonnistui.");
+    }
+  }
+}
+
+// Lisää vain uudet tapahtumat (ei duplikaatteja)
+function mergeEvents(newEvents) {
+  const existingTitlesAndDates = new Set(allEvents.map(e => e.title + e.dateObj.toISOString()));
+  newEvents.forEach(e => {
+    const key = e.title + e.dateObj.toISOString();
+    if (!existingTitlesAndDates.has(key)) {
+      allEvents.push(e);
+    }
+  });
+  allEvents.sort((a,b)=>a.dateObj-b.dateObj);
+}
+
+// Muuntaa hinnat senteistä euroiksi muodossa 5,00 €
 function formatPrice(minPrice, maxPrice) {
   if (!minPrice && !maxPrice) return "Ei hintaa saatavilla";
-  const min = minPrice ? (minPrice).toFixed(2) : null;
-  const max = maxPrice ? (maxPrice).toFixed(2) : null;
+  const min = minPrice ? (minPrice).toFixed(2).replace(".", ",") : null;
+  const max = maxPrice ? (maxPrice).toFixed(2).replace(".", ",") : null;
   if (!max || min === max) return `alk. ${min} €`;
   return `alk. ${min}–${max} €`;
 }
@@ -59,23 +78,11 @@ function formatPrice(minPrice, maxPrice) {
 // Harkitut kuvaukset tapahtumatyyppien mukaan
 function getCustomDescription(event) {
   const title = event.title.toLowerCase();
-  
-  if (title.includes("appro")) {
-    return "APPROT: Rastisuunnistus, jossa käydään erinäisiä baareja/ravintoloita läpi tilaamalla tuotteita saadakseen leimoja passiin.";
-  }
-  if (title.includes("sitsit")) {
-    return "SITSIT: Perinteiset opiskelijasitsit laulujen ja ohjelman kera.";
-  }
-  if (title.includes("sauna")) {
-    return "SAUNAILTA: Rentoa hengailua, saunomista ja lautapelejä opiskelijoille.";
-  }
-  if (title.includes("afterwork") || title.includes("network")) {
-    return "AFTERWORK: Rennompi verkostoitumisilta opiskelijoille ja alumneille.";
-  }
-  if (title.includes("bileet") || title.includes("party")) {
-    return "BILEET: Rento opiskelijabileilta haalarikansalle. Musiikkia, teemajuomia ja paljon porukkaa.";
-  }
-
+  if (title.includes("appro")) return "APPROT: Rastisuunnistus, jossa käydään erinäisiä baareja/ravintoloita läpi tilaamalla tuotteita saadakseen leimoja passiin.";
+  if (title.includes("sitsit")) return "SITSIT: Perinteiset opiskelijasitsit laulujen ja ohjelman kera.";
+  if (title.includes("sauna")) return "SAUNAILTA: Rentoa hengailua, saunomista ja lautapelejä opiskelijoille.";
+  if (title.includes("afterwork") || title.includes("network")) return "AFTERWORK: Rennompi verkostoitumisilta opiskelijoille ja alumneille.";
+  if (title.includes("bileet") || title.includes("party")) return "BILEET: Rento opiskelijabileilta haalarikansalle. Musiikkia, teemajuomia ja paljon porukkaa.";
   return "Ei tarkempaa kuvausta saatavilla.";
 }
 
@@ -99,22 +106,7 @@ async function loadEvents() {
     maxPrice: event.maxPrice?.eur,
     availability: event.availability ?? "N/A",
     popularity: event.favoritedTimes ?? 0
-  })).sort((a,b)=>a.dateObj-b.dateObj);
-}
-
-// Varmistaa, että tarvittavat tapahtumat on ladattu, estää tuplauksia
-async function ensureEventsLoadedForWeek(startDate, daysWindow) {
-  const weekEvents = filterEvents(allEvents, startDate, daysWindow);
-  if (weekEvents.length === 0) {
-    try {
-      const newEvents = await loadEvents();
-      const existingKeys = new Set(allEvents.map(e => e.title + e.dateObj.getTime()));
-      const uniqueNewEvents = newEvents.filter(e => !existingKeys.has(e.title + e.dateObj.getTime()));
-      allEvents = allEvents.concat(uniqueNewEvents);
-    } catch (e) {
-      console.error("Uusien tapahtumien haku epäonnistui:", e);
-    }
-  }
+  }));
 }
 
 // Renderöinti
@@ -138,7 +130,6 @@ function updateRangeInfo(events) {
 
 function renderEvents(events) {
   eventsContainer.innerHTML = "";
-
   if (events.length === 0) {
     eventsContainer.innerHTML = `
       <div class="empty-state">
@@ -152,10 +143,8 @@ function renderEvents(events) {
   events.forEach(event => {
     const popularity = getPopularityLabel(event.popularity);
     const dateText = formatDateTimeFi(event.dateObj);
-
     const card = document.createElement("article");
     card.className = "event-card";
-
     card.innerHTML = `
       <h3 class="event-title">${escapeHtml(event.title)}</h3>
       <div class="event-meta">
@@ -169,7 +158,6 @@ function renderEvents(events) {
         <p class="event-description">${escapeHtml(getCustomDescription(event))}</p>
       </div>
     `;
-
     eventsContainer.appendChild(card);
   });
 }

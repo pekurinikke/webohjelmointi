@@ -49,6 +49,7 @@ const placeCoords = {
 const eventsContainer = document.getElementById("eventsContainer");
 let allEvents = [];
 
+// Lasketaan etäisyys km
 function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -127,15 +128,15 @@ function renderEvents(events) {
   });
 }
 
-// Sort by Hervanta proximity
+// Tässä korjataan "Näytä Hervannan lähellä" toimimaan oikein
 const nearButton = document.getElementById("nearHervantaBtn");
 if (nearButton) {
   nearButton.addEventListener("click", () => {
-    const sorted = [...allEvents].sort((a,b) => {
-      const d1 = getDistanceInfo(a.location)?.km || 999;
-      const d2 = getDistanceInfo(b.location)?.km || 999;
-      return d1 - d2;
-    });
+    const eventsWithDistance = allEvents.map(ev => ({
+      ...ev,
+      distanceKm: parseFloat(getDistanceInfo(ev.location)?.km ?? 999)
+    }));
+    const sorted = eventsWithDistance.sort((a,b) => a.distanceKm - b.distanceKm);
     renderEvents(sorted);
   });
 }

@@ -1,6 +1,6 @@
 const HERVANTA = { lat: 61.4499, lon: 23.8500 };
-const VERY_NEAR_HERVANTA_KM = 3;   // Todella lähellä
-const NEAR_HERVANTA_KM = 7;        // Kohtuullisen lähellä
+const VERY_NEAR_HERVANTA_KM = 3;
+const NEAR_HERVANTA_KM = 7;
 
 const placeCoords = {
   "Hervanta": { lat: 61.4499, lon: 23.8500 },
@@ -49,7 +49,6 @@ const placeCoords = {
 const eventsContainer = document.getElementById("eventsContainer");
 let allEvents = [];
 
-// Lasketaan etäisyys km
 function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -61,10 +60,11 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 
 function getDistanceInfo(location) {
   if (!placeCoords[location]) return null;
-  const km = haversineDistance(HERVANTA.lat, HERVANTA.lon, placeCoords[location].lat, placeCoords[location].lon).toFixed(1);
-  if (km <= VERY_NEAR_HERVANTA_KM) return { label: "Todella lähellä Hervantaa", class: "very-near", km };
-  if (km <= NEAR_HERVANTA_KM) return { label: "Kohtuullisen lähellä Hervantaa", class: "near", km };
-  return { label: "Hervannasta kauempana", class: "far", km };
+  const km = haversineDistance(HERVANTA.lat, HERVANTA.lon, placeCoords[location].lat, placeCoords[location].lon);
+  const kmRounded = km.toFixed(1);
+  if (km <= VERY_NEAR_HERVANTA_KM) return { label: "Todella lähellä Hervantaa", class: "very-near", km: kmRounded };
+  if (km <= NEAR_HERVANTA_KM) return { label: "Kohtuullisen lähellä Hervantaa", class: "near", km: kmRounded };
+  return { label: "Hervannasta kauempana", class: "far", km: kmRounded };
 }
 
 function getPopularityLabel(popularity) {
@@ -128,28 +128,25 @@ function renderEvents(events) {
   });
 }
 
-// Tässä korjataan "Näytä Hervannan lähellä" toimimaan oikein
-const nearButton = document.getElementById("nearHervantaBtn");
-if (nearButton) {
-  nearButton.addEventListener("click", () => {
-    const eventsWithDistance = allEvents.map(ev => ({
-      ...ev,
-      distanceKm: parseFloat(getDistanceInfo(ev.location)?.km ?? 999)
-    }));
-    const sorted = eventsWithDistance.sort((a,b) => a.distanceKm - b.distanceKm);
-    renderEvents(sorted);
-  });
-}
-
 function init() {
   fetch("events.json")
     .then(res => res.json())
     .then(data => {
-      allEvents = data.map(ev => ({
-        ...ev,
-        dateObj: new Date(ev.date)
-      }));
+      allEvents = data.map(ev => ({ ...ev, dateObj: new Date(ev.date) }));
       renderEvents(allEvents);
+
+      // liitetään nappi vasta kun data on ladattu
+      const nearButton = document.getElementById("nearHervantaBtn");
+      if (nearButton) {
+        nearButton.addEventListener("click", () => {
+          const sorted = [...allEvents].sort((a, b) => {
+            const d1 = parseFloat(getDistanceInfo(a.location)?.km ?? 999);
+            const d2 = parseFloat(getDistanceInfo(b.location)?.km ?? 999);
+            return d1 - d2;
+          });
+          renderEvents(sorted);
+        });
+      }
     })
     .catch(console.error);
 }

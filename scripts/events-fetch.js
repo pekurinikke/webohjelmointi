@@ -22,7 +22,6 @@ const VERY_NEAR_HERVANTA_KM = 3;   // Todella lähellä
 const NEAR_HERVANTA_KM = 7;        // Kohtuullisen lähellä
 
 // Tunnettujen tapahtumapaikkojen koordinaatit
-// Lisää tänne uusia paikkoja sitä mukaa kun huomaat niitä
 const placeCoords = {
   // Hervanta / kampus
   "Hervanta": { lat: 61.4499, lon: 23.8500 },
@@ -35,7 +34,7 @@ const placeCoords = {
   "Bricks": { lat: 61.4498, lon: 23.8510 },
   "Bommari": { lat: 61.4502, lon: 23.8576 },
 
-  // Keskusta / Tulli / muut jo olemassa olleet
+  // Keskusta / Tulli / muut
   "Tullikamari": { lat: 61.4980, lon: 23.7737 },
   "Pakkahuone": { lat: 61.4979, lon: 23.7741 },
   "Klubi": { lat: 61.4978, lon: 23.7609 },
@@ -45,16 +44,19 @@ const placeCoords = {
   "Ilona": { lat: 61.4982, lon: 23.7605 },
   "Olympia": { lat: 61.4970, lon: 23.7658 },
 
-  // UUSIA paikkoja Kide-haun pohjalta / lähellä tai kohtuullisen lähellä Hervantaa
+  // Uusia / Kide-haun pohjalta
   "Ole.Fit Tampella": { lat: 61.5034893, lon: 23.764089 },
+
   "TAMK Main Campus": { lat: 61.5037721, lon: 23.8087612 },
   "TAMK Stage C1-05": { lat: 61.5037721, lon: 23.8087612 },
   "Tampere University of Applied Sciences (TAMK) - Main campus": { lat: 61.5037721, lon: 23.8087612 },
   "RestoLab G0-08, TAMK Main Campus": { lat: 61.5037721, lon: 23.8087612 },
+  "TAMK": { lat: 61.5037721, lon: 23.8087612 },
 
   "SportUni Kauppi": { lat: 61.5038423, lon: 23.8064888 },
   "SportUni, Kaupin kampus": { lat: 61.5038423, lon: 23.8064888 },
   "SportUni Kauppi (TAMK liikuntakeskus, L-rakennus)": { lat: 61.5038423, lon: 23.8064888 },
+  "Kauppi": { lat: 61.5038423, lon: 23.8064888 },
 
   "Sport-Uni Keskusta": { lat: 61.4927922, lon: 23.781083 },
   "Sport-Uni Keskusta, Atalpa": { lat: 61.4927922, lon: 23.781083 },
@@ -74,9 +76,12 @@ const placeCoords = {
   "Tampereen Ylioppilasteatteri": { lat: 61.4988265, lon: 23.7821438 },
   "Ylioppilasteatteri": { lat: 61.4988265, lon: 23.7821438 },
 
-  // Muita hyödyllisiä yleisiä osumia
-  "TAMK": { lat: 61.5037721, lon: 23.8087612 },
-  "Kauppi": { lat: 61.5038423, lon: 23.8064888 }
+  // Uudet lisäykset v2.1
+  "Ikaalisten Kylpylä & Spa": { lat: 61.7699, lon: 23.0676 },
+
+  "Sin City and H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 },
+  "Sin City": { lat: 61.4982, lon: 23.7608 },
+  "H5 Bar&Cellar": { lat: 61.4982, lon: 23.7608 }
 };
 
 init();
@@ -87,13 +92,13 @@ async function init() {
   await ensureEventsLoaded();
   render();
 
-  prevBtn.addEventListener("click", async () => {
+  prevBtn.addEventListener("click", () => {
     currentStartDate = addDays(currentStartDate, -DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
     render();
   });
 
-  nextBtn.addEventListener("click", async () => {
+  nextBtn.addEventListener("click", () => {
     currentStartDate = addDays(currentStartDate, DAYS_WINDOW);
     startDateInput.value = formatDateForInput(currentStartDate);
     render();
@@ -174,8 +179,12 @@ function getCustomDescription(event) {
     return "BILEET: Rento opiskelijabileilta haalarikansalle. Musiikkia, teemajuomia ja paljon porukkaa.";
   }
 
-  if (title.includes("liikunta") || title.includes("sport") || title.includes("treeni")) {
+  if (title.includes("liikunta") || title.includes("sport") || title.includes("treeni") || title.includes("futsal")) {
     return "LIIKUNTATAPAHTUMA: Opiskelijoille suunnattua liikuntaa, hyvinvointia tai aktiivista tekemistä.";
+  }
+
+  if (title.includes("kahvit")) {
+    return "KAHVITTELU: Rennompaa hengailua, jutustelua ja yhteisöllistä opiskelijameininkiä.";
   }
 
   return "Ei tarkempaa kuvausta saatavilla.";
@@ -222,8 +231,11 @@ function render() {
       if (aRank !== bRank) return aRank - bRank;
 
       // Jos sama ryhmä, lähin ensin
-      if (a.distanceFromHervanta !== b.distanceFromHervanta) {
-        return a.distanceFromHervanta - b.distanceFromHervanta;
+      const aDistance = typeof a.distanceFromHervanta === "number" ? a.distanceFromHervanta : Infinity;
+      const bDistance = typeof b.distanceFromHervanta === "number" ? b.distanceFromHervanta : Infinity;
+
+      if (aDistance !== bDistance) {
+        return aDistance - bDistance;
       }
 
       // Lopuksi aikajärjestys
@@ -269,7 +281,7 @@ function renderEvents(events) {
     const dateText = formatDateTimeFi(event.dateObj);
     const proximityBadge = getHervantaBadge(event);
 
-    const distanceText = Number.isFinite(event.distanceFromHervanta)
+    const distanceText = typeof event.distanceFromHervanta === "number"
       ? `<div class="distance-badge">📍 ${event.distanceFromHervanta.toFixed(1).replace(".", ",")} km Hervannasta</div>`
       : "";
 
@@ -398,10 +410,10 @@ function enrichEventsWithHervantaPriority(events) {
 
     const distance = coords
       ? distanceKm(HERVANTA.lat, HERVANTA.lon, coords.lat, coords.lon)
-      : Number.MAX_SAFE_INTEGER;
+      : null;
 
-    const veryNearHervanta = distance <= VERY_NEAR_HERVANTA_KM;
-    const nearHervanta = distance <= NEAR_HERVANTA_KM;
+    const veryNearHervanta = typeof distance === "number" && distance <= VERY_NEAR_HERVANTA_KM;
+    const nearHervanta = typeof distance === "number" && distance <= NEAR_HERVANTA_KM;
 
     return {
       ...event,
@@ -421,7 +433,9 @@ function getHervantaPriorityRank(event) {
 
 // Badge tapahtumakorttiin
 function getHervantaBadge(event) {
-  if (!Number.isFinite(event.distanceFromHervanta)) return "";
+  if (typeof event.distanceFromHervanta !== "number") {
+    return `<div class="distance-badge">⚪ Etäisyys Hervantaan ei tiedossa</div>`;
+  }
 
   if (event.veryNearHervanta) {
     return `<div class="distance-badge">🟢 Todella lähellä Hervantaa</div>`;

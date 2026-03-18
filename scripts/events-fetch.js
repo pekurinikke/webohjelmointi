@@ -135,16 +135,20 @@ function init() {
       allEvents = data.map(ev => ({ ...ev, dateObj: new Date(ev.date) }));
       renderEvents(allEvents);
 
-      // liitetään nappi vasta kun data on ladattu
-      const nearButton = document.getElementById("nearHervantaBtn");
-      if (nearButton) {
-        nearButton.addEventListener("click", () => {
-          const sorted = [...allEvents].sort((a, b) => {
-            const d1 = parseFloat(getDistanceInfo(a.location)?.km ?? 999);
-            const d2 = parseFloat(getDistanceInfo(b.location)?.km ?? 999);
-            return d1 - d2;
-          });
-          renderEvents(sorted);
+      // Nyt käytetään oikeaa id:tä HTML:stä
+      const sortCheckbox = document.getElementById("sortHervanta");
+      if (sortCheckbox) {
+        sortCheckbox.addEventListener("change", () => {
+          if (sortCheckbox.checked) {
+            const sorted = [...allEvents].sort((a, b) => {
+              const d1 = parseFloat(getDistanceInfo(a.location)?.km ?? 999);
+              const d2 = parseFloat(getDistanceInfo(b.location)?.km ?? 999);
+              return d1 - d2;
+            });
+            renderEvents(sorted);
+          } else {
+            renderEvents(allEvents);
+          }
         });
       }
     })

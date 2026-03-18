@@ -44,15 +44,39 @@ async function init() {
   });
 }
 
-// Muunna sentit euroiksi
-function formatPrice(minPriceCents, maxPriceCents) {
-  if (!minPriceCents && !maxPriceCents) return "Ei hintaa saatavilla";
-  const min = minPriceCents ? (minPriceCents / 100).toFixed(2) : null;
-  const max = maxPriceCents ? (maxPriceCents / 100).toFixed(2) : null;
+// Muuntaa hinnat sentit -> eurot
+function formatPrice(minPrice, maxPrice) {
+  if (!minPrice && !maxPrice) return "Ei hintaa saatavilla";
+  const min = minPrice ? (minPrice).toFixed(2) : null;
+  const max = maxPrice ? (maxPrice).toFixed(2) : null;
   if (!max || min === max) return `alk. ${min} €`;
   return `alk. ${min}–${max} €`;
 }
 
+// Harkitut kuvaukset tapahtumatyyppien mukaan
+function getCustomDescription(event) {
+  const title = event.title.toLowerCase();
+  
+  if (title.includes("appro")) {
+    return "APPROT: Rastisuunnistus, jossa käydään erinäisiä baareja/ravintoloita läpi tilaamalla tuotteita saadakseen leimoja passiin.";
+  }
+  if (title.includes("sitsit")) {
+    return "SITSIT: Perinteiset opiskelijasitsit laulujen ja ohjelman kera.";
+  }
+  if (title.includes("sauna")) {
+    return "SAUNAILTA: Rentoa hengailua, saunomista ja lautapelejä opiskelijoille.";
+  }
+  if (title.includes("afterwork") || title.includes("network")) {
+    return "AFTERWORK: Rennompi verkostoitumisilta opiskelijoille ja alumneille.";
+  }
+  if (title.includes("bileet") || title.includes("party")) {
+    return "BILEET: Rento opiskelijabileilta haalarikansalle. Musiikkia, teemajuomia ja paljon porukkaa.";
+  }
+
+  return "Ei tarkempaa kuvausta saatavilla.";
+}
+
+// Lataa tapahtumat Kide.app APIsta
 async function loadEvents() {
   const url = "https://api.kide.app/api/products?country=FI&city=Tampere&productType=1&pageSize=50";
   const response = await fetch(url);
@@ -71,11 +95,11 @@ async function loadEvents() {
     minPrice: event.minPrice?.eur,
     maxPrice: event.maxPrice?.eur,
     availability: event.availability ?? "N/A",
-    popularity: event.favoritedTimes ?? 0,
-    description: event.description || "Ei kuvausta saatavilla."
+    popularity: event.favoritedTimes ?? 0
   })).sort((a,b)=>a.dateObj-b.dateObj);
 }
 
+// Renderöinti
 function render() {
   const filteredEvents = filterEvents(allEvents, currentStartDate, DAYS_WINDOW);
   updateRangeInfo(filteredEvents);
@@ -124,7 +148,7 @@ function renderEvents(events) {
         <div><strong>Paikkoja jäljellä:</strong> ${escapeHtml(event.availability)}</div>
         <div class="popularity ${popularity.level}">${popularity.label}</div>
         <div><strong>Tykkäykset:</strong> ${event.popularity}</div>
-        <p class="event-description">${escapeHtml(event.description)}</p>
+        <p class="event-description">${escapeHtml(getCustomDescription(event))}</p>
       </div>
     `;
 

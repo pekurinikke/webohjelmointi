@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #fff9e6; /* pastellinkeltainen tausta */
+  background-color: #fff9e6; /* pastellinkeltainen */
   margin: 0;
   padding: 0;
   color: #333;
@@ -15,7 +15,7 @@ body {
 .page-header {
   text-align: center;
   padding: 2rem 1rem;
-  background-color: #fff3b3; /* hieman voimakkaampi pastellikeltainen */
+  background-color: #fff3b3;
 }
 
 .subtitle {
@@ -89,11 +89,6 @@ body {
 .popularity.low {
   color: #999;
   font-weight: bold;
-}
-
-.event-description {
-  margin-top: 0.5rem;
-  font-size: 0.95rem;
 }
 
 .empty-state {
